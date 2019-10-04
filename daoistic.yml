@@ -1,0 +1,6 @@
+---
+- name: Daoistic deployment playbook
+  hosts: daoistic
+  become: no
+  roles:
+      - { role: daoistic/deploy, tags: [ 'daoistic' ] }

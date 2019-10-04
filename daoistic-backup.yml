@@ -1,0 +1,7 @@
+---
+- name: Daoistic backup playbook
+  hosts: daoistic
+  become: no
+  roles:
+      - { role: host/backup, tags: [ 'host' ] }
+      - { role: daoistic/backup, tags: [ 'daoistic' ] }

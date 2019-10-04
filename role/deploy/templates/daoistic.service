@@ -1,0 +1,18 @@
+[Unit]
+Description=Daoistic service
+Requires=daoistic.socket
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+PIDFile=/run/daoistic/pid
+User={{ daoistic_user }}
+Group={{ daoistic_user }}
+WorkingDirectory=/opt/daoistic
+ExecStart=/opt/daoistic/var/venv/bin/gunicorn --pid /run/daoistic/pid --bind unix:/run/daoistic/socket config.wsgi
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+SyslogIdentifier=daoistic
+
+[Install]
+WantedBy=multi-user.target

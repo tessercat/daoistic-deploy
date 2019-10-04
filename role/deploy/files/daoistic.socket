@@ -1,0 +1,8 @@
+[Unit]
+Description=Daoistic socket
+
+[Socket]
+ListenStream=/run/daoistic/socket
+
+[Install]
+WantedBy=sockets.target
