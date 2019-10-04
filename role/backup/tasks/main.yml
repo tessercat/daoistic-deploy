@@ -30,6 +30,6 @@
 - name: Create backup link to book data
   file:
       src: "{{ playbook_dir }}/host_data/{{ inventory_hostname }}/{{ ansible_date_time.date }}.daoistic.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/{{ inventory_hostname }}/daoistic.tgz"
+      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/{{ inventory_hostname }}.daoistic.tgz"
       state: link
   delegate_to: localhost
