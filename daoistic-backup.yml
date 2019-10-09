@@ -3,5 +3,5 @@
   hosts: daoistic
   become: no
   roles:
-      - { role: host/backup, tags: [ 'host' ] }
+      - { role: nginx/backup, tags: [ 'nginx' ] }
       - { role: daoistic/backup, tags: [ 'daoistic' ] }

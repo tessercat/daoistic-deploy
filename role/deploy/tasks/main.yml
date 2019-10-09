@@ -33,7 +33,7 @@
   become: yes
   become_user: "{{ daoistic_user }}"
   git:
-      repo: "git://localhost:9418/puptel-daoistic.git"
+      repo: "git://localhost:9418/daoistic-web.git"
       dest: /opt/daoistic
       version: master
       force: yes
@@ -105,6 +105,13 @@
 
 # Configure daoistic data.
 
+- name: Create link to Unihan data
+  file:
+      src: "{{ playbook_dir }}/host_data/unihan12.tgz"
+      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/unihan.tgz"
+      state: link
+  delegate_to: localhost
+
 - name: Copy Unihan data
   unarchive:
       src: unihan.tgz
@@ -149,6 +156,7 @@
 - name: Notify book data handler
   notify:
       - import daoistic book data
+      - import daoistic blog data
   command: /bin/true
   when: not stat_daoistic_db.stat.exists
 

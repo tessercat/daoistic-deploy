@@ -20,13 +20,6 @@
       path: /tmp/daoistic.tgz
       state: absent
 
-- name: Create link to unihan data
-  file:
-      src: "{{ playbook_dir }}/host_data/unihan12.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/unihan.tgz"
-      state: link
-  delegate_to: localhost
-
 - name: Create backup link to book data
   file:
       src: "{{ playbook_dir }}/host_data/{{ inventory_hostname }}/{{ ansible_date_time.date }}.daoistic.tgz"

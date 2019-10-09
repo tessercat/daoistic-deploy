@@ -54,6 +54,15 @@
   args:
       chdir: /opt/daoistic
 
+- name: Import blog data
+  listen:
+      - import daoistic blog data
+  become: yes
+  become_user: "{{ daoistic_user }}"
+  command: /opt/daoistic/var/venv/bin/python manage.py importblog
+  args:
+      chdir: /opt/daoistic
+
 # Handle service config notifications.
 
 - name: Run systemd-tmpfiles
