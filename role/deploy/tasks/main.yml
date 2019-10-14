@@ -122,9 +122,9 @@
 
 - name: Copy book data
   unarchive:
-      src: "{{ inventory_hostname }}.daoistic.tgz"
+      src: "{{ inventory_hostname }}.book.tgz"
       dest: /opt/daoistic/var
-      creates: /opt/daoistic/var/daoistic
+      creates: /opt/daoistic/var/book
       owner: "{{ daoistic_user }}"
       group: "{{ daoistic_user }}"
 

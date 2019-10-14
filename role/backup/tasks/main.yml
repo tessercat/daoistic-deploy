@@ -7,22 +7,22 @@
       chdir: /opt/daoistic
 
 - name: Archive directory
-  command: tar -C /opt/daoistic/var -czvf /tmp/daoistic.tgz book warn=no
+  command: tar -C /opt/daoistic/var -czvf /tmp/book.tgz book warn=no
 
 - name: Fetch archive
   fetch:
-      src: /tmp/daoistic.tgz
-      dest: "host_data/{{ inventory_hostname }}/{{ ansible_date_time.date }}.daoistic.tgz"
+      src: /tmp/book.tgz
+      dest: "host_data/{{ inventory_hostname }}/{{ ansible_date_time.date }}.book.tgz"
       flat: yes
 
 - name: Remove archive from remote host
   file:
-      path: /tmp/daoistic.tgz
+      path: /tmp/book.tgz
       state: absent
 
 - name: Create backup link to book data
   file:
-      src: "{{ playbook_dir }}/host_data/{{ inventory_hostname }}/{{ ansible_date_time.date }}.daoistic.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/{{ inventory_hostname }}.daoistic.tgz"
+      src: "{{ playbook_dir }}/host_data/{{ inventory_hostname }}/{{ ansible_date_time.date }}.book.tgz"
+      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/{{ inventory_hostname }}.book.tgz"
       state: link
   delegate_to: localhost
