@@ -2,12 +2,12 @@
 - name: Export book data
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/python manage.py exportdaoistic
+  command: /opt/daoistic-web/var/venv/bin/python manage.py exportdaoistic
   args:
-      chdir: /opt/daoistic
+      chdir: /opt/daoistic-web
 
 - name: Archive directory
-  command: tar -C /opt/daoistic/var -czvf /tmp/book.tgz book warn=no
+  command: tar -C /opt/daoistic-web/var -czvf /tmp/book.tgz book warn=no
 
 - name: Fetch archive
   fetch:
