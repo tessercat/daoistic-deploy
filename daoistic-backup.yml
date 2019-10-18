@@ -4,4 +4,4 @@
   become: no
   roles:
       - { role: nginx/backup, tags: [ 'nginx' ] }
-      - { role: daoistic/backup, tags: [ 'daoistic' ] }
+      - { role: daoistic-web/backup, tags: [ 'daoistic-web' ] }

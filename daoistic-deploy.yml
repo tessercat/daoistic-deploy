@@ -3,4 +3,4 @@
   hosts: daoistic
   become: no
   roles:
-      - { role: daoistic/deploy, tags: [ 'daoistic' ] }
+      - { role: daoistic-web/deploy, tags: [ 'daoistic-web' ] }
