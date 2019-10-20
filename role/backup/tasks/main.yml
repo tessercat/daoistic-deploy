@@ -2,12 +2,12 @@
 - name: Export book data
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic-web/var/venv/bin/python manage.py exportdaoistic
+  command: /opt/daoistic/var/venv/bin/python manage.py exportbook
   args:
-      chdir: /opt/daoistic-web
+      chdir: /opt/daoistic
 
 - name: Archive directory
-  command: tar -C /opt/daoistic-web/var -czvf /tmp/book.tgz book warn=no
+  command: tar -C /opt/daoistic/var -czvf /tmp/book.tgz book warn=no
 
 - name: Fetch archive
   fetch:
@@ -23,6 +23,6 @@
 - name: Create backup link to book data
   file:
       src: "{{ playbook_dir }}/host_data/{{ inventory_hostname }}/{{ ansible_date_time.date }}.book.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/{{ inventory_hostname }}.book.tgz"
+      dest: "{{ playbook_dir }}/roles/daoistic/web/deploy/files/{{ inventory_hostname }}.book.tgz"
       state: link
   delegate_to: localhost

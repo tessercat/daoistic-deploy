@@ -50,7 +50,7 @@
       - import daoistic book data
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/python manage.py importdaoistic
+  command: /opt/daoistic/var/venv/bin/python manage.py importbook
   args:
       chdir: /opt/daoistic
 
