@@ -1,5 +1,5 @@
-upstream daoistic-web {
-    server unix:/run/daoistic-web/socket fail_timeout=0;
+upstream daoistic {
+    server unix:/run/daoistic/socket fail_timeout=0;
 }
 server {
     listen 443 ssl;
@@ -11,10 +11,10 @@ server {
         try_files $uri @proxy_to_app;
     }
     location /static/ {
-        root /opt/daoistic-web;
+        root /opt/daoistic;
     }
     location @proxy_to_app {
-        proxy_pass http://daoistic-web;
+        proxy_pass http://daoistic;
         proxy_redirect off;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

@@ -4,93 +4,92 @@
 
 - name: Update venv
   listen:
-      - configure daoistic-web venv
+      - configure daoistic venv
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic-web/var/venv/bin/pip install --upgrade pip pip-tools
+  command: /opt/daoistic/var/venv/bin/pip install --upgrade pip pip-tools
 
 - name: Configure venv requirements
   listen:
-      - configure daoistic-web venv
+      - configure daoistic venv
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic-web/var/venv/bin/pip-sync requirements.txt
+  command: /opt/daoistic/var/venv/bin/pip-sync requirements.txt
   args:
-      chdir: /opt/daoistic-web
+      chdir: /opt/daoistic
 
 - name: Migrate db
   listen:
-      - migrate daoistic-web db
+      - migrate daoistic db
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic-web/var/venv/bin/python manage.py migrate
+  command: /opt/daoistic/var/venv/bin/python manage.py migrate
   args:
-      chdir: /opt/daoistic-web
+      chdir: /opt/daoistic
 
 - name: Create project admin user
   listen:
-      - create daoistic-web admin user
+      - create daoistic admin user
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: "/opt/daoistic-web/var/venv/bin/python manage.py createadminuser {{ daoistic_admin_password }}"
+  command: "/opt/daoistic/var/venv/bin/python manage.py createadminuser {{ daoistic_admin_password }}"
   args:
-      chdir: /opt/daoistic-web
+      chdir: /opt/daoistic
 
 - name: Import Unihan data
   listen:
-      - import daoistic-web unihan data
+      - import daoistic unihan data
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic-web/var/venv/bin/python manage.py importunihan
+  command: /opt/daoistic/var/venv/bin/python manage.py importunihan
   args:
-      chdir: /opt/daoistic-web
+      chdir: /opt/daoistic
 
 - name: Import book data
   listen:
-      - import daoistic-web book data
+      - import daoistic book data
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic-web/var/venv/bin/python manage.py importdaoistic
+  command: /opt/daoistic/var/venv/bin/python manage.py importdaoistic
   args:
-      chdir: /opt/daoistic-web
+      chdir: /opt/daoistic
 
 - name: Import blog data
   listen:
-      - import daoistic-web blog data
+      - import daoistic blog data
   become: yes
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic-web/var/venv/bin/python manage.py importblog
+  command: /opt/daoistic/var/venv/bin/python manage.py importblog
   args:
-      chdir: /opt/daoistic-web
+      chdir: /opt/daoistic
 
 # Handle service config notifications.
 
 - name: Run systemd-tmpfiles
   listen:
-      - run daoistic-web systemd-tmpfiles
-  command: /bin/systemd-tmpfiles --create daoistic-web.conf
+      - run daoistic systemd-tmpfiles
+  command: /bin/systemd-tmpfiles --create daoistic.conf
 
 - name: Restart socket
   listen:
-      - restart daoistic-web socket
+      - restart daoistic socket
   systemd:
-      name: daoistic-web.socket
+      name: daoistic.socket
       enabled: yes
       daemon-reload: yes
       state: restarted
 
 - name: Restart service
   listen:
-      - restart daoistic-web service
+      - restart daoistic service
   systemd:
-      name: daoistic-web.service
-      enabled: yes
+      name: daoistic.service
       daemon-reload: yes
       state: restarted
 
 - name: Restart nginx service
   listen:
-      - restart daoistic-web nginx service
+      - restart daoistic nginx service
   systemd:
       name: nginx.service
       state: restarted

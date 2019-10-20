@@ -19,7 +19,7 @@
 
 - name: Configure directory
   file:
-      path: /opt/daoistic-web
+      path: /opt/daoistic
       state: directory
       owner: "{{ daoistic_user }}"
       group: "{{ daoistic_user }}"
@@ -27,69 +27,69 @@
 
 - name: Clone repo
   notify:
-      - configure daoistic-web venv
-      - migrate daoistic-web db
-      - restart daoistic-web service
+      - configure daoistic venv
+      - migrate daoistic db
+      - restart daoistic service
   become: yes
   become_user: "{{ daoistic_user }}"
   git:
-      repo: "git://localhost:{{ ansible_gitd_port }}/daoistic-web.git"
-      dest: /opt/daoistic-web
+      repo: "git://localhost:{{ ansible_gitd_port }}/daoistic/web.git"
+      dest: /opt/daoistic
       version: master
       force: yes
 
 - name: Create venv
   notify:
-      - configure daoistic-web venv
-      - restart daoistic-web service
+      - configure daoistic venv
+      - restart daoistic service
   become: yes
   become_user: "{{ daoistic_user }}"
   command: python3 -m venv venv
   args:
-      chdir: /opt/daoistic-web/var
-      creates: /opt/daoistic-web/var/venv
+      chdir: /opt/daoistic/var
+      creates: /opt/daoistic/var/venv
 
 - name: Configure settings
   notify:
-      - restart daoistic-web service
+      - restart daoistic service
   become: yes
   become_user: "{{ daoistic_user }}"
   template:
       src: settings.py.j2
-      dest: /opt/daoistic-web/var/settings.py
+      dest: /opt/daoistic/var/settings.py
       mode: 0600
 
 # Configure app services.
 
 - name: Configure run directory
   notify:
-      - run daoistic-web systemd-tmpfiles
+      - run daoistic systemd-tmpfile
   template:
-      src: daoistic-web.tmpfile
-      dest: /etc/tmpfiles.d/daoistic-web.conf
+      src: daoistic.tmpfile
+      dest: /etc/tmpfiles.d/daoistic.conf
       mode: 0644
 
 - name: Configure socket
   notify:
-      - restart daoistic-web socket
+      - restart daoistic socket
   copy:
-      src: daoistic-web.socket
-      dest: /etc/systemd/system/daoistic-web.socket
+      src: daoistic.socket
+      dest: /etc/systemd/system/daoistic.socket
       mode: 0644
 
 - name: Configure service
   notify:
-      - restart daoistic-web service
+      - restart daoistic service
   template:
-      src: daoistic-web.service
-      dest: /etc/systemd/system/daoistic-web.service
+      src: daoistic.service
+      dest: /etc/systemd/system/daoistic.service
       mode: 0644
 
 # Configure nginx to serve the app.
 
 - name: Configure HTTP server
   notify:
-      - restart daoistic-web nginx service
+      - restart daoistic nginx service
   template:
       src: daoistic-http.conf.j2
       dest: /etc/nginx/conf.d/daoistic-http.conf
@@ -97,7 +97,7 @@
 
 - name: Configure HTTPS server
   notify:
-      - restart daoistic-web nginx service
+      - restart daoistic nginx service
   template:
       src: daoistic-https.conf.j2
       dest: /etc/nginx/conf.d/daoistic-https.conf
@@ -108,23 +108,23 @@
 - name: Create link to Unihan data
   file:
       src: "{{ playbook_dir }}/host_data/unihan12.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/unihan.tgz"
+      dest: "{{ playbook_dir }}/roles/daoistic/web/deploy/files/unihan.tgz"
       state: link
   delegate_to: localhost
 
 - name: Copy Unihan data
   unarchive:
       src: unihan.tgz
-      dest: /opt/daoistic-web/var
-      creates: /opt/daoistic-web/var/unihan
+      dest: /opt/daoistic/var
+      creates: /opt/daoistic/var/unihan
       owner: "{{ daoistic_user }}"
       group: "{{ daoistic_user }}"
 
 - name: Copy book data
   unarchive:
       src: "{{ inventory_hostname }}.book.tgz"
-      dest: /opt/daoistic-web/var
-      creates: /opt/daoistic-web/var/book
+      dest: /opt/daoistic/var
+      creates: /opt/daoistic/var/book
       owner: "{{ daoistic_user }}"
       group: "{{ daoistic_user }}"
 
@@ -132,31 +132,31 @@
 
 - name: Stat db
   stat:
-      path: /opt/daoistic-web/var/db.sqlite3
+      path: /opt/daoistic/var/db.sqlite3
   register: stat_daoistic_db
 
 - name: Notify migration handler
   notify:
-      - migrate daoistic-web db
+      - migrate daoistic db
   command: /bin/true
   when: not stat_daoistic_db.stat.exists
 
 - name: Notify admin user handler
   notify:
-      - create daoistic-web admin user
+      - create daoistic admin user
   command: /bin/true
   when: not stat_daoistic_db.stat.exists
 
 - name: Notify Unihan data handler
   notify:
-      - import daoistic-web unihan data
+      - import daoistic unihan data
   command: /bin/true
   when: not stat_daoistic_db.stat.exists
 
 - name: Notify book data handler
   notify:
-      - import daoistic-web book data
-      - import daoistic-web blog data
+      - import daoistic book data
+      - import daoistic blog data
   command: /bin/true
   when: not stat_daoistic_db.stat.exists
 
