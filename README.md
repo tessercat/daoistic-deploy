@@ -1,11 +1,3 @@
-Clone this repo
-and the stack-ansible repo
-to the same parent directory,
-then cd to the daoistic repo
-and run the link script.
-
-    bash link.sh
-
 # Unihan data
 
 The unihan import command
