@@ -1,7 +1,7 @@
 # Link playbooks and roles to ../puptel/.
 
 # Link playbooks.
-PB_DIR=$(readlink -f $PWD/../puptel)
+PB_DIR=$(readlink -f $PWD/../playbooks)
 if [ ! -d $PB_DIR ]; then
     exit 1
 fi
