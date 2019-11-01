@@ -1,6 +1,6 @@
 ---
 - name: Daoistic deployment playbook
-  hosts: daoistic
+  hosts: all
   become: no
   roles:
-      - { role: daoistic/web/deploy, tags: [ 'daoistic-web' ] }
+      - { role: daoistic/web/deploy, tags: [ 'web' ] }

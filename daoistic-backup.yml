@@ -1,7 +1,7 @@
 ---
 - name: Daoistic backup playbook
-  hosts: daoistic
+  hosts: all
   become: no
   roles:
-      - { role: nginx/backup, tags: [ 'nginx' ] }
-      - { role: daoistic/web/backup, tags: [ 'daoistic-web' ] }
+      - { role: stack/nginx/backup, tags: [ 'nginx' ] }
+      - { role: daoistic/web/backup, tags: [ 'book' ] }
