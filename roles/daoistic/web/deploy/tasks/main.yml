@@ -40,7 +40,8 @@
       version: master
       force: yes
   register: daoistic_repo
-  # Init venv
+  # Upgrade
+  # Requirements
   # Migrate
 
 - name: Settings
@@ -52,8 +53,6 @@
       src: settings.py.j2
       dest: /opt/daoistic/var/settings.py
       mode: 0600
-  register: daoistic_settings
-  # Init venv
 
 - name: Link Unihan
   file:
@@ -62,7 +61,7 @@
       state: link
   delegate_to: localhost
 
-- name: Unarchive
+- name: Unarchive Unihan
   unarchive:
       src: unihan.tgz
       dest: /opt/daoistic/var
@@ -72,7 +71,7 @@
   register: daoistic_unihan
   # Import unihan
 
-- name: Book
+- name: Unarchive book
   unarchive:
       src: "{{ inventory_hostname }}.book.tgz"
       dest: /opt/daoistic/var
@@ -81,6 +80,7 @@
       group: "{{ daoistic_user }}"
   register: daoistic_book
   # Import book
+  # Import blog
 
 
 # Venv.
@@ -95,7 +95,8 @@
       chdir: /opt/daoistic/var
       creates: /opt/daoistic/var/venv
   register: daoistic_venv
-  # Init venv
+  # Upgrade
+  # Requirements
 
 - name: Upgrade
   become: yes
@@ -118,6 +119,8 @@
   stat:
       path: /opt/daoistic/var/db.sqlite3
   register: daoistic_db
+  # Migrate
+  # Admin user
 
 - name: Migrate
   become: yes
@@ -125,7 +128,7 @@
   command: /opt/daoistic/var/venv/bin/python manage.py migrate
   args:
       chdir: /opt/daoistic
-  when: not daoistic_db.stat.exists or daoistic_repo is changed
+  when: daoistic_repo is changed or not daoistic_db.stat.exists
 
 - name: Admin user
   become: yes
