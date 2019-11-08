@@ -2,5 +2,6 @@
 - name: Daoistic deployment playbook
   hosts: all
   become: no
+  gather_facts: no
   roles:
       - { role: daoistic/web/deploy, tags: [ 'web' ] }
