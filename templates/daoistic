@@ -1,0 +1,6 @@
+# Daoistic vars.
+daoistic_admin_password: {daoistic_admin_password}
+daoistic_hostname: daoistic.ca
+daoistic_repo: git://localhost:9418/daoistic.git
+daoistic_secret_key: "{daoistic_secret_key}"
+daoistic_user: peter

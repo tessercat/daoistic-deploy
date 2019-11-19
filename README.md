@@ -1,14 +1,3 @@
-# Host vars
-
-    # Daoistic vars.
-    host_other_hostnames: "daoistic.ca"
-    daoistic_admin_password: {daoistic_admin_password}
-    daoistic_hostname: daoistic.ca
-    daoistic_repo: {daoistic_repo}
-    daoistic_secret_key: "{daoistic_secret_key}"
-    daoistic_timezone: America/Edmonton
-    daoistic_user: peter
-
 # Unihan data
 
 The unihan import command
