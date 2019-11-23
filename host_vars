@@ -1,6 +1,0 @@
-# Daoistic vars.
-daoistic_admin_password: {{ daoistic_admin_password }}
-daoistic_hostname: {{ daoistic_hostname }}
-daoistic_secret_key: {{ daoistic_secret_key }}
-daoistic_timezone: {{ daoistic_timezone }}
-daoistic_user: {{ daoistic_user }}
