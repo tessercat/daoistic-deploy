@@ -55,7 +55,7 @@
   become: yes
   become_user: "{{ daoistic_user }}"
   template:
-      src: settings.py.j2
+      src: settings.py
       dest: /opt/daoistic/var/settings.py
 
 - name: Link Unihan
@@ -172,7 +172,7 @@
 
 - name: Run directory
   template:
-      src: daoistic.tmpfile
+      src: tmpfile
       dest: /etc/tmpfiles.d/daoistic.conf
       mode: 0644
 
@@ -193,7 +193,7 @@
   notify:
       - restart daoistic socket
   copy:
-      src: daoistic.socket
+      src: socket
       dest: /etc/systemd/system/daoistic.socket
       mode: 0644
 
@@ -207,7 +207,7 @@
   notify:
       - restart daoistic service
   template:
-      src: daoistic.service
+      src: service
       dest: /etc/systemd/system/daoistic.service
       mode: 0644
 
@@ -224,7 +224,7 @@
   notify:
       - restart daoistic nginx service
   template:
-      src: daoistic-http.conf.j2
+      src: http.conf
       dest: /etc/nginx/conf.d/daoistic-http.conf
       mode: 0644
 
@@ -232,7 +232,7 @@
   notify:
       - restart daoistic nginx service
   template:
-      src: daoistic-https.conf.j2
+      src: https.conf
       dest: /etc/nginx/conf.d/daoistic-https.conf
       mode: 0644
 

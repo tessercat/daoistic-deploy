@@ -1,7 +1,7 @@
 ---
-- name: Daoistic deployment playbook
+- name: Deploy daoistic
   hosts: all
   become: no
   gather_facts: no
   roles:
-      - { role: daoistic/web/deploy, tags: [ 'web' ] }
+      - { role: daoistic/deploy, tags: [ 'web' ] }
