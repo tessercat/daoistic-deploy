@@ -21,7 +21,7 @@
 
 # Django project.
 
-- name: Directory
+- name: Deployment directory
   file:
       path: /opt/daoistic
       state: directory
@@ -29,34 +29,60 @@
       group: "{{ daoistic_user }}"
       mode: 0755
 
+- name: Directory
+  file:
+      path: /opt/daoistic/web
+      state: directory
+      owner: "{{ daoistic_user }}"
+      group: "{{ daoistic_user }}"
+      mode: 0700
+
 - name: Repo
   notify:
       - restart daoistic service
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
   git:
       repo: "git://localhost:{{ ansible_gitd_port }}/daoistic/web.git"
       dest: /opt/daoistic
       version: master
-      force: yes
+      force: true
   register: daoistic_repo
+  # Clean
   # Upgrade
   # Requirements
   # Migrate
 
-- name: Var directory
+- name: Clean
   file:
-      path: /opt/inventory/var
+      path: /opt/daoistic/static
+      state: absent
+  when: daoistic_repo is changed
+
+- name: Stat static
+  stat:
+      path: /opt/daoistic/static
+  register: daoistic_static
+  # Static.
+
+- name: Static
+  copy:
+      src: /opt/daoistic/web/static
+      dest: /opt/daoistic
+      remote_src: true
+      owner: www-data
+      group: www-data
       mode: 0700
+  when: not daoistic_static.stat.exists
 
 - name: Settings
   notify:
       - restart daoistic service
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
   template:
       src: settings.py
-      dest: /opt/daoistic/var/settings.py
+      dest: /opt/daoistic/web/var/settings.py
 
 - name: Link Unihan
   file:
@@ -68,8 +94,8 @@
 - name: Unarchive Unihan
   unarchive:
       src: unihan.tgz
-      dest: /opt/daoistic/var
-      creates: /opt/daoistic/var/unihan
+      dest: /opt/daoistic/web/var
+      creates: /opt/daoistic/web/var/unihan
       owner: "{{ daoistic_user }}"
       group: "{{ daoistic_user }}"
   register: daoistic_unihan
@@ -78,8 +104,8 @@
 - name: Unarchive book
   unarchive:
       src: "{{ inventory_hostname }}.book.tgz"
-      dest: /opt/daoistic/var
-      creates: /opt/daoistic/var/book
+      dest: /opt/daoistic/web/var
+      creates: /opt/daoistic/web/var/book
       owner: "{{ daoistic_user }}"
       group: "{{ daoistic_user }}"
   register: daoistic_book
@@ -92,28 +118,28 @@
 - name: Venv
   notify:
       - restart daoistic service
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
   command: python3 -m venv venv
   args:
-      chdir: /opt/daoistic/var
-      creates: /opt/daoistic/var/venv
+      chdir: /opt/daoistic/web/var
+      creates: /opt/daoistic/web/var/venv
   register: daoistic_venv
   # Upgrade
   # Requirements
 
 - name: Upgrade
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/pip install --upgrade pip pip-tools
+  command: /opt/daoistic/web/var/venv/bin/pip install --upgrade pip pip-tools
   when: daoistic_repo is changed or daoistic_venv is changed
 
 - name: Requirements
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/pip-sync requirements.txt
+  command: /opt/daoistic/web/var/venv/bin/pip-sync requirements.txt
   args:
-      chdir: /opt/daoistic
+      chdir: /opt/daoistic/web
   when: daoistic_repo is changed or daoistic_venv is changed
 
 
@@ -121,50 +147,50 @@
 
 - name: Stat db
   stat:
-      path: /opt/daoistic/var/db.sqlite3
+      path: /opt/daoistic/web/var/db.sqlite3
   register: daoistic_db
   # Migrate
   # Admin user
 
 - name: Migrate
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/python manage.py migrate
+  command: /opt/daoistic/web/var/venv/bin/python manage.py migrate
   args:
-      chdir: /opt/daoistic
+      chdir: /opt/daoistic/web
   when: daoistic_repo is changed or not daoistic_db.stat.exists
 
 - name: Admin user
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
-  when: not daoistic_db.stat.exists
-  command: "/opt/daoistic/var/venv/bin/python manage.py createadminuser {{ daoistic_admin_password }}"
+  command: "/opt/daoistic/web/var/venv/bin/python manage.py \
+            createadminuser {{ daoistic_admin_password }}"
   args:
-      chdir: /opt/daoistic
+      chdir: /opt/daoistic/web
   when: not daoistic_db.stat.exists
 
 - name: Import Unihan
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/python manage.py importunihan
+  command: /opt/daoistic/web/var/venv/bin/python manage.py importunihan
   args:
-      chdir: /opt/daoistic
+      chdir: /opt/daoistic/web
   when: daoistic_unihan is changed
 
 - name: Import book
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/python manage.py importbook
+  command: /opt/daoistic/web/var/venv/bin/python manage.py importbook
   args:
-      chdir: /opt/daoistic
+      chdir: /opt/daoistic/web
   when: daoistic_book is changed
 
 - name: Import blog
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/python manage.py importblog
+  command: /opt/daoistic/web/var/venv/bin/python manage.py importblog
   args:
-      chdir: /opt/daoistic
+      chdir: /opt/daoistic/web
   when: daoistic_book is changed
 
 
@@ -200,8 +226,8 @@
 - name: Socket status
   systemd:
       name: daoistic.socket
-      enabled: yes
-      daemon-reload: yes
+      enabled: true
+      daemon-reload: true
 
 - name: Service file
   notify:
@@ -214,8 +240,8 @@
 - name: Service status
   systemd:
       name: daoistic.service
-      enabled: yes
-      daemon-reload: yes
+      enabled: true
+      daemon-reload: true
 
 
 # Nginx servers.

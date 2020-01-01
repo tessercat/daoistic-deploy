@@ -1,8 +1,8 @@
 ---
 - name: Backup daoistic
   hosts: all
-  become: no
-  gather_facts: no
+  become: false
+  gather_facts: false
   roles:
-      - { role: stack/nginx/backup, tags: [ 'nginx' ] }
-      - { role: daoistic/backup, tags: [ 'book' ] }
+      - {role: stack/nginx/backup, tags: [nginx]}
+      - {role: daoistic/backup, tags: [book]}

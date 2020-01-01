@@ -1,19 +1,22 @@
 ---
 - name: Export book data
-  become: yes
+  become: true
   become_user: "{{ daoistic_user }}"
-  command: /opt/daoistic/var/venv/bin/python manage.py exportbook
+  command: /opt/daoistic/web/var/venv/bin/python manage.py exportbook
   args:
-      chdir: /opt/daoistic
+      chdir: /opt/daoistic/web
 
 - name: Archive directory
-  command: tar -C /opt/daoistic/var -czvf /tmp/book.tgz book warn=no
+  command: tar -C /opt/web/daoistic/var -czvf /tmp/book.tgz book
+  args:
+      warn: false
 
 - name: Fetch archive
   fetch:
       src: /tmp/book.tgz
-      dest: "host_data/{{ inventory_hostname }}/{{ lookup('pipe', 'date +%F') }}.book.tgz"
-      flat: yes
+      dest: "host_data/{{ inventory_hostname }}/\
+             {{ lookup('pipe', 'date +%F') }}.book.tgz"
+      flat: true
 
 - name: Remove archive from remote host
   file:
@@ -22,7 +25,9 @@
 
 - name: Create backup link to book data
   file:
-      src: "{{ playbook_dir }}/host_data/{{ inventory_hostname }}/{{ lookup('pipe', 'date +%F') }}.book.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/web/deploy/files/{{ inventory_hostname }}.book.tgz"
+      src: "{{ playbook_dir }}/host_data/{{ inventory_hostname }}/\
+            {{ lookup('pipe', 'date +%F') }}.book.tgz"
+      dest: "{{ playbook_dir }}/roles/daoistic/web/deploy/files/\
+             {{ inventory_hostname }}.book.tgz"
       state: link
   delegate_to: localhost
