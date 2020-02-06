@@ -7,7 +7,7 @@
       chdir: /opt/daoistic/web
 
 - name: Archive directory
-  command: tar -C /opt/web/daoistic/var -czvf /tmp/book.tgz book
+  command: tar -C /opt/daoistic/web/var -czvf /tmp/book.tgz book
   args:
       warn: false
 
@@ -27,7 +27,7 @@
   file:
       src: "{{ playbook_dir }}/host_data/{{ inventory_hostname }}/\
             {{ lookup('pipe', 'date +%F') }}.book.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/web/deploy/files/\
+      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/\
              {{ inventory_hostname }}.book.tgz"
       state: link
   delegate_to: localhost
