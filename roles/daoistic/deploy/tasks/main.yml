@@ -43,8 +43,8 @@
   become: true
   become_user: "{{ daoistic_user }}"
   git:
-      repo: "git://localhost:{{ ansible_gitd_port }}/daoistic/web.git"
-      dest: /opt/daoistic
+      repo: "git://localhost:9418/daoistic-web.git"
+      dest: /opt/daoistic/web
       version: master
       force: true
   register: daoistic_repo
@@ -87,7 +87,7 @@
 - name: Link Unihan
   file:
       src: "{{ playbook_dir }}/host_data/unihan12.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/web/deploy/files/unihan.tgz"
+      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/unihan.tgz"
       state: link
   delegate_to: localhost
 
