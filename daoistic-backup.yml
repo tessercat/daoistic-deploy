@@ -4,5 +4,4 @@
   become: false
   gather_facts: false
   roles:
-      - {role: stack/nginx/backup, tags: [nginx]}
       - {role: daoistic/backup, tags: [book]}
