@@ -178,7 +178,7 @@
 # Systemd tmpfiles.
 
 - name: Run directory
-  template:
+  copy:
       src: tmpfile
       dest: /etc/tmpfiles.d/daoistic.conf
       mode: 0644
@@ -199,7 +199,7 @@
 - name: Service file
   notify:
       - restart daoistic service
-  template:
+  copy:
       src: service
       dest: /etc/systemd/system/daoistic.service
       mode: 0644
