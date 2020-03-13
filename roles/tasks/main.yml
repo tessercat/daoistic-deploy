@@ -75,11 +75,10 @@
       src: settings.py
       dest: /opt/daoistic/web/var/settings.py
 
-- name: Unarchive Unihan
-  unarchive:
-      src: unihan.tgz
-      dest: /opt/daoistic/web/var
-      creates: /opt/daoistic/web/var/unihan
+- name: Copy Unihan
+  copy:
+      src: /opt/ansible/unihan
+      dest: /opt/daoistic/web/var/unihan
       owner: peter
       group: peter
   register: daoistic_unihan

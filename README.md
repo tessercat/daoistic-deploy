@@ -39,9 +39,8 @@ the required files are as follows.
     Unihan_Readings.txt
     Unihan_Variants.txt
 
-Place an archive of these files named `unihan.tgz`
-(that extracts all files to subsirectory `unihan`)
-in `/opt/ansible`.
+Place these files in `/opt/ansible/unihan`
+so Ansible can copy them to the correct location.
 
 See unihan info at
 https://www.unicode.org/reports/tr38/.
