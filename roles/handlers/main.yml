@@ -1,11 +1,4 @@
 ---
-- name: Restart socket
-  listen:
-      - restart daoistic socket
-  systemd:
-      name: daoistic.socket
-      state: restarted
-
 - name: Restart service
   listen:
       - restart daoistic service

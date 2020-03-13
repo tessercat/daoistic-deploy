@@ -4,19 +4,10 @@
 
 - name: Packages
   apt:
-      name: "{{ packages }}"
-  vars:
-      packages:
-          - build-essential
+      pkg:
           - git
           - memcached
-          - python3-dev
           - python3-venv
-
-- name: User
-  user:
-      name: "{{ daoistic_user }}"
-      shell: /bin/bash
 
 
 # Django project.
@@ -25,29 +16,29 @@
   file:
       path: /opt/daoistic
       state: directory
-      owner: "{{ daoistic_user }}"
-      group: "{{ daoistic_user }}"
+      owner: peter
+      group: peter
       mode: 0755
 
 - name: Directory
   file:
       path: /opt/daoistic/web
       state: directory
-      owner: "{{ daoistic_user }}"
-      group: "{{ daoistic_user }}"
+      owner: peter
+      group: peter
       mode: 0700
 
 - name: Repo
   notify:
       - restart daoistic service
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   git:
-      repo: "git://localhost:9418/daoistic-web.git"
+      repo: "{{ daoistic_repo }}"
       dest: /opt/daoistic/web
-      version: master
+      version: "{{ daoistic_version }}"
       force: true
-  register: daoistic_repo
+  register: daoistic_git
   # Clean
   # Upgrade
   # Requirements
@@ -57,7 +48,7 @@
   file:
       path: /opt/daoistic/static
       state: absent
-  when: daoistic_repo is changed
+  when: daoistic_git is changed
 
 - name: Stat static
   stat:
@@ -79,35 +70,29 @@
   notify:
       - restart daoistic service
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   template:
       src: settings.py
       dest: /opt/daoistic/web/var/settings.py
-
-- name: Link Unihan
-  file:
-      src: "{{ playbook_dir }}/host_data/unihan12.tgz"
-      dest: "{{ playbook_dir }}/roles/daoistic/deploy/files/unihan.tgz"
-      state: link
-  delegate_to: localhost
 
 - name: Unarchive Unihan
   unarchive:
       src: unihan.tgz
       dest: /opt/daoistic/web/var
       creates: /opt/daoistic/web/var/unihan
-      owner: "{{ daoistic_user }}"
-      group: "{{ daoistic_user }}"
+      owner: peter
+      group: peter
   register: daoistic_unihan
   # Import unihan
 
-- name: Unarchive book
-  unarchive:
-      src: "{{ inventory_hostname }}.book.tgz"
-      dest: /opt/daoistic/web/var
-      creates: /opt/daoistic/web/var/book
-      owner: "{{ daoistic_user }}"
-      group: "{{ daoistic_user }}"
+- name: Book
+  become: true
+  become_user: peter
+  git:
+      repo: "{{ book_repo }}"
+      dest: /opt/daoistic/web/var/book
+      version: "{{ book_version }}"
+      force: false
   register: daoistic_book
   # Import book
   # Import blog
@@ -119,7 +104,7 @@
   notify:
       - restart daoistic service
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   command: python3 -m venv venv
   args:
       chdir: /opt/daoistic/web/var
@@ -130,17 +115,17 @@
 
 - name: Upgrade
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   command: /opt/daoistic/web/var/venv/bin/pip install --upgrade pip pip-tools
-  when: daoistic_repo is changed or daoistic_venv is changed
+  when: daoistic_git is changed or daoistic_venv is changed
 
 - name: Requirements
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   command: /opt/daoistic/web/var/venv/bin/pip-sync requirements.txt
   args:
       chdir: /opt/daoistic/web
-  when: daoistic_repo is changed or daoistic_venv is changed
+  when: daoistic_git is changed or daoistic_venv is changed
 
 
 # Maintenance commands.
@@ -154,24 +139,15 @@
 
 - name: Migrate
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   command: /opt/daoistic/web/var/venv/bin/python manage.py migrate
   args:
       chdir: /opt/daoistic/web
-  when: daoistic_repo is changed or not daoistic_db.stat.exists
-
-- name: Admin user
-  become: true
-  become_user: "{{ daoistic_user }}"
-  command: "/opt/daoistic/web/var/venv/bin/python manage.py \
-            createadminuser {{ daoistic_admin_password }}"
-  args:
-      chdir: /opt/daoistic/web
-  when: not daoistic_db.stat.exists
+  when: daoistic_git is changed or not daoistic_db.stat.exists
 
 - name: Import Unihan
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   command: /opt/daoistic/web/var/venv/bin/python manage.py importunihan
   args:
       chdir: /opt/daoistic/web
@@ -179,7 +155,7 @@
 
 - name: Import book
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   command: /opt/daoistic/web/var/venv/bin/python manage.py importbook
   args:
       chdir: /opt/daoistic/web
@@ -187,7 +163,7 @@
 
 - name: Import blog
   become: true
-  become_user: "{{ daoistic_user }}"
+  become_user: peter
   command: /opt/daoistic/web/var/venv/bin/python manage.py importblog
   args:
       chdir: /opt/daoistic/web
@@ -214,20 +190,6 @@
 
 
 # Systemd service.
-
-- name: Socket file
-  notify:
-      - restart daoistic socket
-  copy:
-      src: socket
-      dest: /etc/systemd/system/daoistic.socket
-      mode: 0644
-
-- name: Socket status
-  systemd:
-      name: daoistic.socket
-      enabled: true
-      daemon-reload: true
 
 - name: Service file
   notify:

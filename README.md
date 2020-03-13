@@ -1,9 +1,32 @@
+This repo contains Ansible roles
+to install the daoistic web site
+on the [stack-deploy](https://github.com/tessercat/stack-deploy) stack.
+
+
+# Deployment
+
+Create the Python venv
+and run the stack playbook
+before running the puptel playbook.
+
+Copy the repo's `daoistic-vars.yml` to /opt/ansible/.
+
+Run the following command
+on the host to have Ansible pull the repo
+and run `local.yml` to deploy daoistic on the stack.
+
+    /opt/ansible/venv/bin/ansible-pull \
+    -U /home/peter/repos/daoistic-deploy -i hosts \
+    -e @/opt/ansible/stack-vars.yml \
+    -e @/opt/ansible/daoistic-vars.yml
+
+
 # Unihan data
 
 The unihan import command
 extracts data from the files in
 `var/unihan`.
-As of version 12,
+As of version 13,
 the required files are as follows.
 
     CJKRadicals.txt
@@ -16,13 +39,9 @@ the required files are as follows.
     Unihan_Readings.txt
     Unihan_Variants.txt
 
-Place a versioned archive of these files
+Place an archive of these files named `unihan.tgz`
 (that extracts all files to subsirectory `unihan`)
-in the inventory host's `host_data`.
-The playbook will link the file
-in the role's `files`
-and extract them to the correct location
-before it runs the import command.
+in `/opt/ansible`.
 
 See unihan info at
 https://www.unicode.org/reports/tr38/.
@@ -35,11 +54,3 @@ https://www.unicode.org/Public/UCD/latest/ucd/CJKRadicals.txt.
 
 The other files are in
 https://www.unicode.org/Public/UCD/latest/ucd/Unihan.zip.
-
-# Book data
-
-The playbook expects
-an inventory-host-specific archive
-of the daoistic-book repo
-that extracts to subdirectory `book`
-to exist in the role's `files`.

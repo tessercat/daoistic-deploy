@@ -1,7 +1,0 @@
----
-- name: Deploy daoistic
-  hosts: all
-  become: false
-  gather_facts: false
-  roles:
-      - {role: daoistic/deploy, tags: [web]}

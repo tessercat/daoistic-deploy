@@ -1,15 +1,13 @@
 [Unit]
 Description=daoistic service
-Requires=daoistic.socket
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-PIDFile=/run/daoistic/pid
-User={{ daoistic_user }}
-Group={{ daoistic_user }}
+User=peter
+Group=peter
 WorkingDirectory=/opt/daoistic/web
-ExecStart=/opt/daoistic/web/var/venv/bin/gunicorn --pid /run/daoistic/pid --bind unix:/run/daoistic/socket project.wsgi
+ExecStart=/opt/daoistic/web/var/venv/bin/daphne -u /run/daoistic/socket project.asgi:application
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 SyslogIdentifier=daoistic

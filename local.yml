@@ -1,0 +1,15 @@
+---
+- name: Deploy daoistic
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars:
+
+      daoistic_repo: /home/peter/repos/daoistic-web.git
+      daoistic_version: master
+
+      book_repo: /home/peter/repos/daoistic-book.git
+      book_version: master
+
+  roles:
+      - {role: daoistic/deploy, tags: [daoistic]}
