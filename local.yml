@@ -12,4 +12,4 @@
       book_version: master
 
   roles:
-      - {role: daoistic/deploy, tags: [daoistic]}
+      - {role: daoistic, tags: [daoistic]}
