@@ -85,6 +85,12 @@
   register: daoistic_unihan
   # Import unihan
 
+- name: Stat book
+  stat:
+      path: /opt/daoistic/web/var/book
+  register: daoistic_book_dir
+  # Book
+
 - name: Book
   become: true
   become_user: peter
@@ -92,8 +98,8 @@
       repo: "{{ book_repo }}"
       dest: /opt/daoistic/web/var/book
       version: "{{ book_version }}"
-      force: false
   register: daoistic_book
+  when: not daoistic_book_dir.stat.exists
   # Import book
   # Import blog
 
