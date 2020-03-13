@@ -78,7 +78,7 @@
 - name: Copy Unihan
   copy:
       src: /opt/ansible/unihan
-      dest: /opt/daoistic/web/var/unihan
+      dest: /opt/daoistic/web/var/
       owner: peter
       group: peter
   register: daoistic_unihan
