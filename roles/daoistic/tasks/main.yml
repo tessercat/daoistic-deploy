@@ -133,7 +133,7 @@
   when: daoistic_git is changed or daoistic_venv is changed
 
 
-# Maintenance commands.
+# Management commands.
 
 - name: Stat db
   stat:
@@ -161,7 +161,15 @@
 - name: Import book
   become: true
   become_user: peter
-  command: /opt/daoistic/web/var/venv/bin/python manage.py importbook
+  command: /opt/daoistic/web/var/venv/bin/python manage.py importchapter --chapter all
+  args:
+      chdir: /opt/daoistic/web
+  when: daoistic_book is changed
+
+- name: Import ctext
+  become: true
+  become_user: peter
+  command: /opt/daoistic/web/var/venv/bin/python manage.py importctext
   args:
       chdir: /opt/daoistic/web
   when: daoistic_book is changed
