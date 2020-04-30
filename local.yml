@@ -1,14 +1,15 @@
 ---
 - name: Deploy daoistic
-  hosts: localhost
+  hosts: 127.0.0.1
+  connection: local
   become: false
   gather_facts: false
   vars:
 
-      daoistic_repo: /home/peter/repos/daoistic-web.git
+      daoistic_repo: https://github.com/tessercat/daoistic-web.git
       daoistic_version: master
 
-      book_repo: /home/peter/repos/daoistic-book.git
+      book_repo: https://github.com/tessercat/daoistic-book.git
       book_version: master
 
   roles:

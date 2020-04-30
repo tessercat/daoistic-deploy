@@ -6,8 +6,10 @@
   apt:
       pkg:
           - git
-          - memcached
           - python3-venv
+          - python3-dev
+          - build-essential
+          - memcached
 
 
 # Django project.
@@ -77,7 +79,7 @@
 
 - name: Copy Unihan
   copy:
-      src: /opt/ansible/unihan
+      src: /opt/daoistic/unihan
       dest: /opt/daoistic/web/var/
       owner: peter
       group: peter
@@ -221,20 +223,12 @@
 
 # Nginx servers.
 
-- name: HTTP server
+- name: Nginx servers
   notify:
       - restart daoistic nginx service
   template:
-      src: http.conf
-      dest: /etc/nginx/conf.d/daoistic-http.conf
-      mode: 0644
-
-- name: HTTPS server
-  notify:
-      - restart daoistic nginx service
-  template:
-      src: https.conf
-      dest: /etc/nginx/conf.d/daoistic-https.conf
+      src: nginx.conf
+      dest: /etc/nginx/conf.d/daoistic.conf
       mode: 0644
 
 

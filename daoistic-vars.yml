@@ -4,5 +4,5 @@
 # One of stack-vars hostname or other_hostnames. Required.
 daoistic_hostname: "daoistic.ca"
 
-# Path for 
-voip_webroot: "/var/opt/spa"
+# Path for VoIP device profiles.
+voip_webroot: "/var/opt/voip"
