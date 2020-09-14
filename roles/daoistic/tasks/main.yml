@@ -123,7 +123,7 @@
 - name: Upgrade
   become: true
   become_user: peter
-  command: /opt/daoistic/web/var/venv/bin/pip install --upgrade pip pip-tools
+  command: /opt/daoistic/web/var/venv/bin/pip install --upgrade pip setuptools wheel pip-tools
   when: daoistic_git is changed or daoistic_venv is changed
 
 - name: Requirements
