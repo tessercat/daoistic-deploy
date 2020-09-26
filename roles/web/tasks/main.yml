@@ -36,11 +36,11 @@
   become: true
   become_user: peter
   git:
-      repo: "{{ daoistic_repo }}"
+      repo: "{{ web_repo }}"
       dest: /opt/daoistic/web
-      version: "{{ daoistic_version }}"
+      version: "{{ web_version }}"
       force: true
-  register: daoistic_git
+  register: daoistic_clone
   # Clean
   # Upgrade
   # Requirements
@@ -50,7 +50,7 @@
   file:
       path: /opt/daoistic/static
       state: absent
-  when: daoistic_git is changed
+  when: daoistic_clone is changed
 
 - name: Stat static
   stat:
@@ -124,7 +124,7 @@
   become: true
   become_user: peter
   command: /opt/daoistic/web/var/venv/bin/pip install --upgrade pip setuptools wheel pip-tools
-  when: daoistic_git is changed or daoistic_venv is changed
+  when: daoistic_clone is changed or daoistic_venv is changed
 
 - name: Requirements
   become: true
@@ -132,7 +132,7 @@
   command: /opt/daoistic/web/var/venv/bin/pip-sync requirements.txt
   args:
       chdir: /opt/daoistic/web
-  when: daoistic_git is changed or daoistic_venv is changed
+  when: daoistic_clone is changed or daoistic_venv is changed
 
 
 # Management commands.
@@ -150,7 +150,7 @@
   command: /opt/daoistic/web/var/venv/bin/python manage.py migrate
   args:
       chdir: /opt/daoistic/web
-  when: daoistic_git is changed or not daoistic_db.stat.exists
+  when: daoistic_clone is changed or not daoistic_db.stat.exists
 
 - name: Import Unihan
   become: true
@@ -185,36 +185,25 @@
   when: daoistic_book is changed
 
 
-# Systemd tmpfiles.
-
-- name: Run directory
-  copy:
-      src: tmpfile
-      dest: /etc/tmpfiles.d/daoistic.conf
-      mode: 0644
-
-- name: Stat directory
-  stat:
-      path: /run/daoistic
-  register: daoistic_tmpfile
-  # Systemd-tmpfiles
-
-- name: Systemd-tmpfiles
-  command: /bin/systemd-tmpfiles --create daoistic.conf
-  when: not daoistic_tmpfile.stat.exists
-
-
 # Systemd service.
+
+- name: Service detection script
+  copy:
+      src: altp.bash
+      dest: /opt/daoistic/web/var/altp
+      owner: peter
+      group: peter
+      mode: 0700
 
 - name: Service file
   notify:
       - restart daoistic service
-  copy:
+  template:
       src: service
       dest: /etc/systemd/system/daoistic.service
       mode: 0644
 
-- name: Service status
+- name: Service state
   systemd:
       name: daoistic.service
       enabled: true

@@ -6,11 +6,12 @@
   gather_facts: false
   vars:
 
-      daoistic_repo: https://github.com/tessercat/daoistic-web.git
-      daoistic_version: master
+      web_repo: https://github.com/tessercat/daoistic-web.git
+      web_version: master
+      web_port: 8200
 
       book_repo: https://github.com/tessercat/daoistic-book.git
       book_version: master
 
   roles:
-      - {role: daoistic, tags: [daoistic]}
+      - {role: web, tags: [web]}
