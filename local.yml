@@ -7,11 +7,11 @@
   vars:
 
       web_repo: https://github.com/tessercat/daoistic-web.git
-      web_version: master
+      web_version: dev
       web_port: 8200
 
       book_repo: https://github.com/tessercat/daoistic-book.git
-      book_version: master
+      book_version: stable
 
   roles:
       - {role: web, tags: [web]}
