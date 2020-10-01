@@ -63,8 +63,8 @@
       src: /opt/daoistic/web/static
       dest: /opt/daoistic
       remote_src: true
-      owner: nginx
-      group: nginx
+      owner: www-data
+      group: www-data
       mode: 0700
   when: not daoistic_static.stat.exists
 
