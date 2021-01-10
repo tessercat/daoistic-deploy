@@ -10,8 +10,8 @@
       web_version: dev
       web_port: 8200
 
-      book_repo: https://github.com/tessercat/daoistic-book.git
-      book_version: stable
+      data_repo: https://github.com/tessercat/daoistic-data.git
+      data_version: dev
 
   roles:
       - {role: web, tags: [web]}

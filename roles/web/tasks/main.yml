@@ -86,22 +86,22 @@
   register: daoistic_unihan
   # Import unihan
 
-- name: Stat book
+- name: Stat data
   stat:
-      path: /opt/daoistic/web/var/book
-  register: daoistic_book_dir
+      path: /opt/daoistic/web/var/data
+  register: daoistic_data_dir
   # Book
 
 - name: Book
   become: true
   become_user: peter
   git:
-      repo: "{{ book_repo }}"
-      dest: /opt/daoistic/web/var/book
-      version: "{{ book_version }}"
-  register: daoistic_book
-  when: not daoistic_book_dir.stat.exists
-  # Import book
+      repo: "{{ data_repo }}"
+      dest: /opt/daoistic/web/var/data
+      version: "{{ data_version }}"
+  register: daoistic_data
+  when: not daoistic_data_dir.stat.exists
+  # Import data
   # Import blog
 
 
@@ -152,6 +152,8 @@
       chdir: /opt/daoistic/web
   when: daoistic_clone is changed or not daoistic_db.stat.exists
 
+  # TODO Run admin user command.
+
 - name: Import Unihan
   become: true
   become_user: peter
@@ -160,29 +162,13 @@
       chdir: /opt/daoistic/web
   when: daoistic_unihan is changed
 
-- name: Import book
-  become: true
-  become_user: peter
-  command: /opt/daoistic/web/var/venv/bin/python manage.py importchapter --chapter all
-  args:
-      chdir: /opt/daoistic/web
-  when: daoistic_book is changed
-
-- name: Import ctext
-  become: true
-  become_user: peter
-  command: /opt/daoistic/web/var/venv/bin/python manage.py importctext
-  args:
-      chdir: /opt/daoistic/web
-  when: daoistic_book is changed
-
 - name: Import blog
   become: true
   become_user: peter
   command: /opt/daoistic/web/var/venv/bin/python manage.py importblog
   args:
       chdir: /opt/daoistic/web
-  when: daoistic_book is changed
+  when: daoistic_data is changed
 
 
 # Systemd service.
