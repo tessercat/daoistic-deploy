@@ -9,6 +9,7 @@
       web_repo: https://github.com/tessercat/daoistic-web.git
       web_version: dev
       web_port: 8200
+      web_local_port: 8210
 
       data_repo: https://github.com/tessercat/daoistic-data.git
       data_version: dev
