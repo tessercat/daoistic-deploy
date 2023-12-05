@@ -1,0 +1,215 @@
+---
+
+# Platform.
+
+- name: Packages
+  ansible.builtin.apt:
+      pkg:
+          - git
+          - python3-venv
+          - memcached
+          - unzip
+
+- name: Nginx
+  notify:
+      - restart daoistic nginx service
+  ansible.builtin.template:
+      src: nginx.conf
+      dest: /etc/nginx/conf.d/daoistic.ca.conf
+      mode: "0644"
+
+
+# Django.
+
+- name: Deployment directory
+  ansible.builtin.file:
+      path: /opt/daoistic
+      state: directory
+      owner: root
+      group: root
+      mode: "0755"
+
+- name: Directory
+  ansible.builtin.file:
+      path: /opt/daoistic/web
+      state: directory
+      owner: peter
+      group: peter
+      mode: "0700"
+
+- name: Repo
+  notify:
+      - restart daoistic service
+  become: true
+  become_user: peter
+  ansible.builtin.git:
+      repo: "{{ daoistic_web_repo }}"
+      dest: /opt/daoistic/web
+      version: "{{ daoistic_web_version }}"
+      force: true
+  register: dao_clone
+  # Clean
+  # Upgrade
+  # Sync
+  # Migrate
+
+- name: Clean
+  ansible.builtin.file:
+      path: /opt/daoistic/static
+      state: absent
+  when: dao_clone is changed  # noqa: no-handler
+
+- name: Stat static
+  ansible.builtin.stat:
+      path: /opt/daoistic/static
+  register: dao_static
+  # Static
+
+- name: Static
+  ansible.builtin.copy:
+      src: /opt/daoistic/web/static
+      dest: /opt/daoistic
+      remote_src: true
+      owner: www-data
+      group: www-data
+      mode: "0700"
+  when: not dao_static.stat.exists
+
+- name: Settings
+  notify:
+      - restart daoistic service
+  become: true
+  become_user: peter
+  ansible.builtin.template:
+      src: settings.py
+      dest: /opt/daoistic/web/var/settings.py
+      mode: "0644"
+
+
+# Venv.
+
+- name: Venv
+  notify:
+      - restart daoistic service
+  become: true
+  become_user: peter
+  ansible.builtin.command:
+      cmd: python3 -m venv venv
+  args:
+      chdir: /opt/daoistic/web/var
+      creates: /opt/daoistic/web/var/venv
+  register: dao_venv
+  # Upgrade
+  # Sync
+
+- name: Upgrade
+  become: true
+  become_user: peter
+  ansible.builtin.command:
+      cmd: /opt/daoistic/web/var/venv/bin/pip install --upgrade \
+        pip setuptools wheel pip-tools
+  when: dao_clone is changed or dao_venv is changed
+  register: dao_upgrade
+  changed_when: '"Successfully installed" not in dao_upgrade.stdout'
+
+- name: Sync
+  become: true
+  become_user: peter
+  ansible.builtin.command:
+      cmd: /opt/daoistic/web/var/venv/bin/pip-sync requirements.txt
+  args:
+      chdir: /opt/daoistic/web
+  when: dao_clone is changed or dao_venv is changed
+  register: dao_sync
+  changed_when: '"Successfully installed" not in dao_sync.stdout'
+
+
+# Manage database.
+
+- name: Stat db
+  ansible.builtin.stat:
+      path: /opt/daoistic/web/var/db.sqlite3
+  register: dao_db
+  # Copy unihan
+
+- name: Download db
+  become: true
+  become_user: peter
+  ansible.builtin.unarchive:
+      src: "https://github.com/\
+            tessercat/daoistic-deploy/releases/download/\
+            {{ unihan_version }}/{{ unihan_version }}.zip"
+      dest: /opt/daoistic/web/var
+      remote_src: true
+      creates: /opt/daoistic/web/var/db.sqlite3
+  when: not dao_db.stat.exists
+
+- name: Migrate
+  become: true
+  become_user: peter
+  ansible.builtin.command:
+      cmd: /opt/daoistic/web/var/venv/bin/python manage.py migrate
+  args:
+      chdir: /opt/daoistic/web
+  when: dao_clone is changed and dao_db.stat.exists
+  register: dao_migrate
+  changed_when: '"No migrations to apply" not in dao_migrate.stdout'
+
+
+# Systemd service.
+
+- name: Service file
+  notify:
+      - restart daoistic service
+  ansible.builtin.template:
+      src: service
+      dest: /etc/systemd/system/daoistic.service
+      mode: "0644"
+
+- name: Service state
+  ansible.builtin.systemd:
+      name: daoistic.service
+      enabled: true
+      daemon-reload: true
+
+
+# Import blog data.
+
+- name: Stat data
+  ansible.builtin.stat:
+      path: /opt/daoistic/web/var/data
+  register: dao_data_dir
+  # Copy blog
+
+- name: Clone data
+  become: true
+  become_user: peter
+  ansible.builtin.git:
+      repo: "{{ daoistic_data_repo }}"
+      dest: /opt/daoistic/web/var/data
+      version: "{{ daoistic_data_version }}"
+  register: dao_data
+  when: not dao_data_dir.stat.exists
+  # Import blog
+
+- name: Import data
+  become: true
+  become_user: peter
+  ansible.builtin.command:
+      cmd: /opt/daoistic/web/var/venv/bin/python manage.py importblog
+  args:
+      chdir: /opt/daoistic/web
+  when: dao_data is changed  # noqa: no-handler
+  register: dao_import
+  changed_when:
+      - '"Copied" in dao_import.stdout'
+      - '"Removed" in dao_import.stdout'
+      - '"Updated" in dao_import.stdout'
+      - '"Created" in dao_import.stdout'
+      - '"Deleted" in dao_import.stdout'
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,14 @@
+---
+- name: Restart service
+  listen:
+      - restart daoistic service
+  ansible.builtin.systemd:
+      name: daoistic.service
+      state: restarted
+
+- name: Restart nginx service
+  listen:
+      - restart daoistic nginx service
+  ansible.builtin.systemd:
+      name: nginx.service
+      state: restarted
