@@ -1,0 +1,16 @@
+---
+- name: Deploy daoistic
+  hosts: 127.0.0.1
+  connection: local
+  become: false
+  gather_facts: false
+  vars:
+      firewall_port: 8100
+      daoistic_web_repo: https://github.com/tessercat/daoistic-web.git
+      daoistic_web_version: dev
+      daoistic_web_port: 8200
+      daoistic_data_repo: https://github.com/tessercat/daoistic-data.git
+      daoistic_data_version: dev
+      unihan_version: unihan15.1
+  roles:
+      - {role: web, tags: [web]}
